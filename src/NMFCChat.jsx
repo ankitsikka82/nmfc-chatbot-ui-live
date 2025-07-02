@@ -14,6 +14,8 @@ const qaFlow = [
 export default function NMFCChat() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState({});
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const current = qaFlow[step];
   const shouldSkip = current?.conditional_on &&
@@ -24,11 +26,41 @@ export default function NMFCChat() {
     setStep(prev => prev + 1);
   };
 
+  const submitToBackend = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("https://nmfc-api-backend.railway.app/classify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(answers)
+      });
+      const data = await res.json();
+      setResult(data);
+    } catch (error) {
+      console.error("Failed to fetch NMFC classification:", error);
+      setResult({ error: "Failed to classify. Please try again." });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (step >= qaFlow.length) {
+    if (!result && !loading) submitToBackend();
     return (
       <div style={{ marginTop: '2rem', background: '#f8f8f8', padding: '1rem', borderRadius: '8px' }}>
         <h2 style={{ fontWeight: 'bold' }}>✅ Summary</h2>
         <pre>{JSON.stringify(answers, null, 2)}</pre>
+        {loading && <p>🔄 Classifying with GPT + FAISS...</p>}
+        {result && !loading && (
+          <div style={{ marginTop: '1rem', padding: '1rem', background: '#e0ffe0' }}>
+            <h3>📦 NMFC Classification Result</h3>
+            {result.error ? (
+              <p style={{ color: 'red' }}>{result.error}</p>
+            ) : (
+              <pre>{JSON.stringify(result, null, 2)}</pre>
+            )}
+          </div>
+        )}
       </div>
     );
   }
