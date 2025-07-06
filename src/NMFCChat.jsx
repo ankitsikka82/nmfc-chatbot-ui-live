@@ -37,7 +37,7 @@ export default function NMFCChat() {
       const data = await res.json();
       setResult(data);
     } catch (error) {
-      console.error("Failed to fetch NMFC classification:", error);
+      console.error("Failed to fetch NMFC classification. Contact Ankit and tell him this sucks:", error);
       setResult({ error: "Failed to classify. Please try again." });
     } finally {
       setLoading(false);
