@@ -29,7 +29,7 @@ export default function NMFCChat() {
   const submitToBackend = async () => {
     setLoading(true);
     try {
-      const res = await fetch("https://nmfc-api-backend.railway.app/classify", {
+      const res = await fetch("https://nmfc-api-backend-production.up.railway.app/classify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(answers)
